@@ -46,6 +46,10 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
   }
 
   void _syncQuery() {
+    if (!mounted) {
+      return;
+    }
+
     final notifier =
         context.read<AnimalListNotifier>();
 
@@ -63,7 +67,7 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
       return;
     }
 
-    context.push(
+    context.go(
       query.toLocation('/animals'),
     );
   }
@@ -74,12 +78,10 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
   ) async {
     return await showDialog<bool>(
           context: context,
-
           builder: (context) {
             return AlertDialog(
               title: Text(title),
               content: Text(text),
-
               actions: [
                 TextButton(
                   onPressed: () {
@@ -88,12 +90,8 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
                       false,
                     );
                   },
-
-                  child: const Text(
-                    'Отмена',
-                  ),
+                  child: const Text('Отмена'),
                 ),
-
                 FilledButton(
                   onPressed: () {
                     Navigator.pop(
@@ -101,10 +99,7 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
                       true,
                     );
                   },
-
-                  child: const Text(
-                    'Да',
-                  ),
+                  child: const Text('Да'),
                 ),
               ],
             );
@@ -171,10 +166,8 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Животные'),
-
         leading: IconButton(
           icon: const Icon(Icons.home),
-
           onPressed: () {
             context.go('/');
           },
@@ -183,7 +176,6 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
 
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-
         child: Column(
           children: [
             AnimalFilters(
@@ -199,24 +191,20 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(12),
-
                   child: Wrap(
                     spacing: 16,
                     runSpacing: 12,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-
+                    crossAxisAlignment:
+                        WrapCrossAlignment.center,
                     children: [
                       Text(
                         'Выбрано: ${notifier.selected.length}',
                       ),
-
                       FilledButton.icon(
                         onPressed: _deleteSelected,
-
                         icon: const Icon(
                           Icons.delete,
                         ),
-
                         label: const Text(
                           'Удалить выбранные',
                         ),
@@ -250,28 +238,21 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
       return Card(
         child: Padding(
           padding: const EdgeInsets.all(24),
-
           child: Column(
             children: [
               const Icon(
                 Icons.error_outline,
                 size: 60,
               ),
-
               const SizedBox(height: 16),
-
               Text(
                 notifier.error ?? 'Неизвестная ошибка',
                 textAlign: TextAlign.center,
               ),
-
               const SizedBox(height: 16),
-
               FilledButton(
                 onPressed: notifier.load,
-                child: const Text(
-                  'Повторить',
-                ),
+                child: const Text('Повторить'),
               ),
             ],
           ),
@@ -283,16 +264,13 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
       return const Card(
         child: Padding(
           padding: EdgeInsets.all(40),
-
           child: Column(
             children: [
               Icon(
                 Icons.search_off,
                 size: 60,
               ),
-
               SizedBox(height: 16),
-
               Text(
                 'Животные не найдены',
               ),
@@ -325,7 +303,6 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
           totalPages: notifier.result.totalPages,
           total: notifier.result.total,
           size: notifier.result.size,
-
           onPageChanged: (page) {
             _changeQuery(
               notifier.query.copyWith(
@@ -333,7 +310,6 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
               ),
             );
           },
-
           onSizeChanged: (size) {
             _changeQuery(
               notifier.query.copyWith(
@@ -352,15 +328,10 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
   ) {
     return EntityTable<Animal>(
       items: notifier.result.items,
-
       idOf: (animal) => animal.id,
-
       selected: notifier.selected,
-
       onToggleSelect: notifier.toggleSelection,
-
       sortField: notifier.query.sortField,
-
       sortAscending: notifier.query.sortAscending,
 
       onSort: (field) {
@@ -381,51 +352,40 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
         TableColumnSpec<Animal>(
           label: 'Имя',
           sortField: 'name',
-
           build: (animal) => Text(
             animal.name,
           ),
         ),
-
         TableColumnSpec<Animal>(
           label: 'Вид',
-
           build: (animal) => Text(
             animal.species,
           ),
         ),
-
         TableColumnSpec<Animal>(
           label: 'Порода',
-
           build: (animal) => Text(
             animal.breed,
           ),
         ),
-
         TableColumnSpec<Animal>(
           label: 'Возраст',
           sortField: 'age',
           numeric: true,
-
           build: (animal) => Text(
             '${animal.ageMonths} мес.',
           ),
         ),
-
         TableColumnSpec<Animal>(
           label: 'Цена',
           sortField: 'price',
           numeric: true,
-
           build: (animal) => Text(
             '${animal.price.toStringAsFixed(0)} ₽',
           ),
         ),
-
         TableColumnSpec<Animal>(
           label: 'Статус',
-
           build: (animal) => Text(
             animal.isDeleted
                 ? 'Удалён'
@@ -438,13 +398,11 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
         return [
           IconButton(
             tooltip: 'Открыть',
-
             onPressed: () {
               context.push(
                 '/animals/${animal.id}',
               );
             },
-
             icon: const Icon(
               Icons.visibility,
             ),
@@ -453,11 +411,9 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
           if (!animal.isDeleted)
             IconButton(
               tooltip: 'Удалить',
-
               onPressed: () {
                 _softDelete(animal);
               },
-
               icon: const Icon(
                 Icons.delete_outline,
               ),
@@ -466,13 +422,11 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
           if (animal.isDeleted)
             IconButton(
               tooltip: 'Восстановить',
-
               onPressed: () {
                 notifier.restore(
                   animal.id,
                 );
               },
-
               icon: const Icon(
                 Icons.restore,
               ),
@@ -480,11 +434,9 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
 
           IconButton(
             tooltip: 'Удалить навсегда',
-
             onPressed: () {
               _hardDelete(animal);
             },
-
             icon: const Icon(
               Icons.delete_forever,
             ),
@@ -503,22 +455,20 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
           return Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
-
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
                 children: [
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-
+                    crossAxisAlignment:
+                        WrapCrossAlignment.center,
                     children: [
                       Checkbox(
                         value: notifier.selected.contains(
                           animal.id,
                         ),
-
                         onChanged: (value) {
                           notifier.toggleSelection(
                             animal.id,
@@ -528,7 +478,6 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
 
                       Text(
                         animal.name,
-
                         style: Theme.of(context)
                             .textTheme
                             .titleLarge,
@@ -541,19 +490,15 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
                   Text(
                     'Вид: ${animal.species}',
                   ),
-
                   Text(
                     'Порода: ${animal.breed}',
                   ),
-
                   Text(
                     'Возраст: ${animal.ageMonths} мес.',
                   ),
-
                   Text(
                     'Пол: ${animal.sex}',
                   ),
-
                   Text(
                     'Цена: ${animal.price.toStringAsFixed(0)} ₽',
                   ),
@@ -568,7 +513,6 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-
                     children: [
                       OutlinedButton(
                         onPressed: () {
@@ -576,7 +520,6 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
                             '/animals/${animal.id}',
                           );
                         },
-
                         child: const Text(
                           'Открыть',
                         ),
@@ -589,7 +532,6 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
                               animal,
                             );
                           },
-
                           child: const Text(
                             'Удалить',
                           ),
@@ -602,7 +544,6 @@ class _AnimalListScreenState extends State<AnimalListScreen> {
                               animal.id,
                             );
                           },
-
                           child: const Text(
                             'Восстановить',
                           ),

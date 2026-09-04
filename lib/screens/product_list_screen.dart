@@ -46,6 +46,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 
   void _syncQuery() {
+    if (!mounted) {
+      return;
+    }
+
     final notifier =
         context.read<ProductListNotifier>();
 
@@ -63,7 +67,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
       return;
     }
 
-    context.push(
+    // Изменяем состояние текущего списка через URL.
+    // Благодаря этому Back/Forward браузера
+    // восстанавливают предыдущие параметры.
+    context.go(
       query.toLocation('/products'),
     );
   }
@@ -74,12 +81,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
   ) async {
     return await showDialog<bool>(
           context: context,
-
           builder: (context) {
             return AlertDialog(
               title: Text(title),
               content: Text(text),
-
               actions: [
                 TextButton(
                   onPressed: () {
@@ -90,7 +95,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   },
                   child: const Text('Отмена'),
                 ),
-
                 FilledButton(
                   onPressed: () {
                     Navigator.pop(
@@ -161,7 +165,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Товары'),
-
         leading: IconButton(
           icon: const Icon(Icons.home),
           onPressed: () {
@@ -169,10 +172,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
           },
         ),
       ),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-
         child: Column(
           children: [
             ProductFilters(
@@ -188,22 +189,20 @@ class _ProductListScreenState extends State<ProductListScreen> {
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(12),
-
                   child: Wrap(
                     spacing: 16,
                     runSpacing: 12,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-
+                    crossAxisAlignment:
+                        WrapCrossAlignment.center,
                     children: [
                       Text(
                         'Выбрано: ${notifier.selected.length}',
                       ),
-
                       FilledButton.icon(
                         onPressed: _deleteSelected,
-
-                        icon: const Icon(Icons.delete),
-
+                        icon: const Icon(
+                          Icons.delete,
+                        ),
                         label: const Text(
                           'Удалить выбранные',
                         ),
@@ -237,23 +236,18 @@ class _ProductListScreenState extends State<ProductListScreen> {
       return Card(
         child: Padding(
           padding: const EdgeInsets.all(24),
-
           child: Column(
             children: [
               const Icon(
                 Icons.error_outline,
                 size: 60,
               ),
-
               const SizedBox(height: 16),
-
               Text(
                 notifier.error ?? 'Неизвестная ошибка',
                 textAlign: TextAlign.center,
               ),
-
               const SizedBox(height: 16),
-
               FilledButton(
                 onPressed: notifier.load,
                 child: const Text('Повторить'),
@@ -268,16 +262,13 @@ class _ProductListScreenState extends State<ProductListScreen> {
       return const Card(
         child: Padding(
           padding: EdgeInsets.all(40),
-
           child: Column(
             children: [
               Icon(
                 Icons.search_off,
                 size: 60,
               ),
-
               SizedBox(height: 16),
-
               Text(
                 'По заданным условиям ничего не найдено',
                 textAlign: TextAlign.center,
@@ -311,7 +302,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
           totalPages: notifier.result.totalPages,
           total: notifier.result.total,
           size: notifier.result.size,
-
           onPageChanged: (page) {
             _changeQuery(
               notifier.query.copyWith(
@@ -319,7 +309,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
               ),
             );
           },
-
           onSizeChanged: (size) {
             _changeQuery(
               notifier.query.copyWith(
@@ -338,15 +327,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
   ) {
     return EntityTable<Product>(
       items: notifier.result.items,
-
       idOf: (product) => product.id,
-
       selected: notifier.selected,
-
       onToggleSelect: notifier.toggleSelection,
-
       sortField: notifier.query.sortField,
-
       sortAscending: notifier.query.sortAscending,
 
       onSort: (field) {
@@ -371,21 +355,18 @@ class _ProductListScreenState extends State<ProductListScreen> {
             product.name,
           ),
         ),
-
         TableColumnSpec<Product>(
           label: 'Артикул',
           build: (product) => Text(
             product.article,
           ),
         ),
-
         TableColumnSpec<Product>(
           label: 'Категория',
           build: (product) => Text(
             product.category,
           ),
         ),
-
         TableColumnSpec<Product>(
           label: 'Цена',
           sortField: 'price',
@@ -394,7 +375,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
             '${product.price.toStringAsFixed(0)} ₽',
           ),
         ),
-
         TableColumnSpec<Product>(
           label: 'Остаток',
           sortField: 'stock',
@@ -403,7 +383,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
             '${product.stock}',
           ),
         ),
-
         TableColumnSpec<Product>(
           label: 'Статус',
           build: (product) => Text(
@@ -418,13 +397,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
         return [
           IconButton(
             tooltip: 'Открыть',
-
             onPressed: () {
               context.push(
                 '/products/${product.id}',
               );
             },
-
             icon: const Icon(
               Icons.visibility,
             ),
@@ -433,11 +410,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
           if (!product.isDeleted)
             IconButton(
               tooltip: 'Логическое удаление',
-
               onPressed: () {
                 _softDelete(product);
               },
-
               icon: const Icon(
                 Icons.delete_outline,
               ),
@@ -446,13 +421,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
           if (product.isDeleted)
             IconButton(
               tooltip: 'Восстановить',
-
               onPressed: () {
                 notifier.restore(
                   product.id,
                 );
               },
-
               icon: const Icon(
                 Icons.restore,
               ),
@@ -460,11 +433,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
           IconButton(
             tooltip: 'Удалить навсегда',
-
             onPressed: () {
               _hardDelete(product);
             },
-
             icon: const Icon(
               Icons.delete_forever,
             ),
@@ -483,32 +454,28 @@ class _ProductListScreenState extends State<ProductListScreen> {
           return Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
-
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
                 children: [
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-
+                    crossAxisAlignment:
+                        WrapCrossAlignment.center,
                     children: [
                       Checkbox(
                         value: notifier.selected.contains(
                           product.id,
                         ),
-
                         onChanged: (value) {
                           notifier.toggleSelection(
                             product.id,
                           );
                         },
                       ),
-
                       Text(
                         product.name,
-
                         style: Theme.of(context)
                             .textTheme
                             .titleLarge,
@@ -521,19 +488,15 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   Text(
                     'Артикул: ${product.article}',
                   ),
-
                   Text(
                     'Категория: ${product.category}',
                   ),
-
                   Text(
                     'Производитель: ${product.manufacturer}',
                   ),
-
                   Text(
                     'Цена: ${product.price.toStringAsFixed(0)} ₽',
                   ),
-
                   Text(
                     'На складе: ${product.stock}',
                   ),
@@ -548,7 +511,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-
                     children: [
                       OutlinedButton(
                         onPressed: () {
@@ -556,7 +518,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
                             '/products/${product.id}',
                           );
                         },
-
                         child: const Text(
                           'Открыть',
                         ),
@@ -569,7 +530,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
                               product,
                             );
                           },
-
                           child: const Text(
                             'Удалить',
                           ),
@@ -582,7 +542,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
                               product.id,
                             );
                           },
-
                           child: const Text(
                             'Восстановить',
                           ),
